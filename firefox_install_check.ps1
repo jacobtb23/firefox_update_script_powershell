@@ -18,7 +18,7 @@ if (Test-Path -Path $firefoxPath) {
     else {
         Write-Host "Firefox is out of date at version $installedVersionNumber. Updating..."
         # Uninstall current version of Firefox.
-        if( Test-Path -Path $uninstallFirefoxPath ) {
+        if ( Test-Path -Path $uninstallFirefoxPath ) {
             Write-Host "Uninstalling Firefox..."
             # Find and stop the firefox.exe process
             $processes = Get-Process | Where-Object { $_.ProcessName -eq "firefox" -or $_.ProcessName -eq "firefox.exe" }
@@ -29,23 +29,34 @@ if (Test-Path -Path $firefoxPath) {
                 Remove-Item -Path $_.FullName -Force
             }
             Remove-Item -Path $uninstallFirefoxPath -Recurse -Force
-            if( Test-Path -Path $uninstallFirefoxPath ) {
+            if ( Test-Path -Path $uninstallFirefoxPath ) {
                 Write-Host "Firefox was not sucessfully uninstalled."
                 exit(1)
             }
             else {
                 Write-Host "Firefox has been uninstalled."
-                if (Get-Command winget -ErrorAction SilentlyContinue) {
-                    # winget is installed, perform action A
-                    Write-Host "winget is installed."
-                    
-                    if (Test-Path -Path $firefoxPath ) {
-                        Write-Host "Updated version of firefox is installed."
-                    }
-                } else {
-                    # winget is not installed, perform action B
-                    Write-Host "winget is not installed. Cannot install Mozilla Firefox w/o winget."
-                    exit(1)
+                # Need to install up to date version of Mozilla Firefox. (TODO)
+                $workdir = "c:\installer\"
+                if (Test-Path -Path $workdir -PathType Container) {
+                    Write-Host "$workdir already exists" -ForegroundColor Red
+                }
+                else { 
+                    New-Item -Path $workdir  -ItemType directory 
+                }
+                $source = "https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US"
+                $destination = "$workdir\firefox.exe"
+                if (Get-Command 'Invoke-Webrequest') {
+                    Invoke-WebRequest $source -OutFile $destination
+                }
+                else {
+                    $WebClient = New-Object System.Net.WebClient
+                    $webclient.DownloadFile($source, $destination)
+                }
+                Start-Process -FilePath "$workdir\firefox.exe" -ArgumentList "/S"
+                Start-Sleep -s 35
+                Remove-Item -Force $workdir/firefox*
+                if (Test-Path -Path $firefoxPath ) {
+                    Write-Host "Updated version of firefox is installed."
                 }
             }
         }
