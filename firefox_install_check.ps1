@@ -11,12 +11,12 @@ if (Test-Path -Path $firefoxPath) {
     $latestVersionNumber = $res.LATEST_FIREFOX_VERSION
     Write-Host "Latest Firefox version:" $latestVersionNumber
     Write-Host "Current installed version number:" $installedVersionNumber
-    $installedVersionNumber = "14.0.1"
+    #$installedVersionNumber = "14.0.1"
     if ($installedVersionNumber -eq $latestVersionNumber) {
-        Write-Host "Firefox is up to date at version number" $installedVersionNumber
+        Write-Host "Firefox is up to date at version number" $installedVersionNumber -ForegroundColor Green
     }
     else {
-        Write-Host "Firefox is out of date at version $installedVersionNumber. Updating..."
+        Write-Host "Firefox is out of date at version $installedVersionNumber. Updating..." -ForegroundColor Red
         # Uninstall current version of Firefox.
         if ( Test-Path -Path $uninstallFirefoxPath ) {
             Write-Host "Uninstalling Firefox..."
@@ -30,15 +30,15 @@ if (Test-Path -Path $firefoxPath) {
             }
             Remove-Item -Path $uninstallFirefoxPath -Recurse -Force
             if ( Test-Path -Path $uninstallFirefoxPath ) {
-                Write-Host "Firefox was not sucessfully uninstalled."
+                Write-Host "Firefox was not sucessfully uninstalled." -ForegroundColor Red
                 exit(1)
             }
             else {
-                Write-Host "Firefox has been uninstalled."
+                Write-Host "Firefox has been uninstalled." -ForegroundColor Green
                 # Need to install up to date version of Mozilla Firefox. (TODO)
                 $workdir = "c:\installer\"
                 if (Test-Path -Path $workdir -PathType Container) {
-                    Write-Host "$workdir already exists" -ForegroundColor Red
+                    Write-Host "$workdir already exists"
                 }
                 else { 
                     New-Item -Path $workdir  -ItemType directory 
@@ -56,7 +56,7 @@ if (Test-Path -Path $firefoxPath) {
                 Start-Sleep -s 35
                 Remove-Item -Force $workdir/firefox*
                 if (Test-Path -Path $firefoxPath ) {
-                    Write-Host "Updated version of firefox is installed."
+                    Write-Host "Updated version of firefox is installed." -ForegroundColor Green
                 }
             }
         }
